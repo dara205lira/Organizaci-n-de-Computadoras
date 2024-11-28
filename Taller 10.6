@@ -1,0 +1,60 @@
+section .data
+    num1 db '3'                ; Primer número en formato de carácter
+    num2 db '4'                ; Segundo número en formato de carácter
+    msg_result db "Resultado: ", 0 ; Mensaje para mostrar el resultado
+    msg_zero db "Esto es un cero", 10, 0 ; Mensaje cuando el resultado es cero
+
+section .bss
+    result resb 4              ; Buffer para almacenar el resultado de la suma
+section .text
+    global _start
+_start:
+    mov al, [num1]
+    sub al, '0'                ; Convertir de ASCII a número
+    mov bl, [num2]
+    sub bl, '0'                ; Convertir de ASCII a número
+
+    add al, bl
+
+    cmp al, 0
+    je print_zero              ; Si el resultado es cero, saltar a print_zero
+
+    mov edx, msg_result
+    call PrintString
+
+    add al, '0'                ; Convertir de número a carácter ASCII
+    mov [result], al           ; Guardar el resultado en el buffer
+
+    mov edx, result
+    call PrintString
+
+    jmp exit_program           ; Saltar al final para terminar el programa
+
+print_zero:
+    mov edx, msg_zero
+    call PrintString
+
+    jmp exit_program           ; Terminar el programa
+
+PrintString:
+    mov eax, 4                 ; sys_write
+    mov ebx, 1                 ; Salida estándar (stdout)
+    mov ecx, edx               ; ECX = dirección de la cadena
+    xor edx, edx               ; Limpiar edx (usaremos edx para contar)
+
+count_loop:
+    cmp byte [ecx + edx], 0    ; Comprobar si es el final de la cadena (null byte)
+    je done_counting           ; Si es el final, hemos terminado
+    inc edx                    ; Incrementar el contador de longitud
+    jmp count_loop
+done_counting:
+    mov eax, 4                 ; sys_write
+    mov ebx, 1                 ; Salida estándar (stdout)
+    int 0x80                   ; Llamada al sistema
+    ret
+
+exit_program:
+    mov eax, 1                 ; sys_exit
+    xor ebx, ebx               ; Código de salida 0
+    int 0x80                   ; Llamada al sistema
+ 
