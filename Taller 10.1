@@ -1,0 +1,55 @@
+section .data
+    sum db 0          ; variable sum inicializada a 0
+    count db 1        ; variable count inicializada a 1
+    msg db "Suma: ", 0 ; mensaje a imprimir
+    msg_len equ $-msg  ; calcula la longitud del mensaje
+
+section .text
+    global _start
+
+_start:
+    mov al, [count]   ; al = count 
+
+while_loop:
+
+    ; comparar count (al) con 10
+    cmp al, 10        ; si al (count) es mayor que 10, salida
+    jg fin_while      ; si count > 10, salto
+
+    ; si count <= 10, suma de count y sum
+    add [sum], al     ; sum = sum + count
+
+    ; incrementar count
+    inc al            ; incrementamos count 
+    mov [count], al   ; guardar el valor
+
+    ; volver al inicio del bucle
+    jmp while_loop    ; verifica condición
+
+fin_while:
+    ; termina el bucle
+    ; imprimir valor
+
+    ; imprimir el mensaje "Suma: "
+    mov eax, 4        ; syscall número 4 
+    mov ebx, 1        ; file descriptor 1 
+    mov ecx, msg      ; dirección del mensaje
+    mov edx, msg_len  ; longitud del mensaje
+    int 0x80          ; llamada al sistema
+
+    ; imprimir el valor de 'sum'
+    mov al, [sum]     ; cargar el valor de sum en el registro al
+    add al, '0'       ; convertir el valor 
+    mov [msg], al     ; valor en ascii
+
+    ; imprimir el valor de 'sum' en ASCII
+    mov eax, 4        ; syscall número 4 
+    mov ebx, 1        ; file descriptor 1
+    mov ecx, msg      ; dirección del mensaje
+    mov edx, 1        ; longitud del mensaje 
+    int 0x80          ; llamada al sistema
+
+    ; salir del programa
+    mov eax, 1        ; syscall número 1 
+    xor ebx, ebx      ; código de salida 0
+    int 0x80          ; llamada al sistema
