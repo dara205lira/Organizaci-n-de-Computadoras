@@ -1,0 +1,28 @@
+section .data
+    result_even db "Es par", 0       ; mensaje para número par
+    result_odd db "Es impar", 0       ; mensaje para número impar
+
+section .bss
+    num resb 1          ; reservar espacio para el número
+    result resb 1       ; reservar espacio para el resultado
+
+section .text
+    global _start
+
+_start:
+    mov al, 5            ; cargar el número 5 en el registro al
+    test al, 1          ; realiza un AND lógico con 1 (verifica el bit menos significativo)
+    jz  es_par           ; si el resultado es 0 (bit menos significativo es 0), es par
+    lea rdi, [result_odd]  ; cargar la dirección de "result_odd" en rdi
+    mov byte [result], rdi ; almacenar la dirección de "result_odd" en "result"
+    jmp fin_if_else      ; saltar al final del bloque if-else
+
+es_par:
+    lea rdi, [result_even] ; cargar la dirección de "result_even" en rdi
+    mov byte [result], rdi ; almacenar la dirección de "result_even" en "result"
+    
+fin_if_else:
+    mov eax, 1          ; código de salida del sistema
+    xor ebx, ebx        ; estado de salida 0
+    int 0x80            ; interrumpir para salir
+ 
