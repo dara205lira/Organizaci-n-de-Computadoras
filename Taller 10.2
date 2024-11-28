@@ -1,0 +1,36 @@
+section .data
+    lista dd 3, 5, 7, -2, 8  ; lista de números, termina con -2
+
+section .bss
+    sum resd 1  ; reserva de espacio para la variable 'sum'
+
+section .text
+    global _start
+
+_start:
+    ; inicializar la suma en 0
+    mov eax, 0          ; eax = sum = 0
+    lea ebx, [lista]    ; ebx apunta al primer número de la lista
+
+do_while_loop:
+    ; cargamos el siguiente número de la lista
+    mov ecx, [ebx]      ; ecx = valor de la lista
+
+    ; sumamos el número al total
+    add eax, ecx        ; eax = eax + ecx (sum = sum + número)
+
+    ; si el número es negativo se salimos del bucle
+    js fin_do_while     ; si el número es negativo se salta al final
+
+    ; si no es negativo, avanzamos al siguiente número
+    add ebx, 4          ; movemos el puntero 4 bytes adelante
+
+    ; vuelve al inicio del bucle
+    jmp do_while_loop
+
+fin_do_while:
+    mov [sum], eax      ; se guarda la suma final en la variable 'sum'
+
+    mov eax, 1          ; syscall para salir
+    xor ebx, ebx        ; código de salida 0
+    int 0x80            ; llamada al sistema para salir
