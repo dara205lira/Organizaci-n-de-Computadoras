@@ -1,0 +1,11 @@
+mov eax, 1 (sys_exit): Cambié el valor de eax a 1 en la primera llamada a int 0x80. 
+
+Esto significa que el programa llamará a la syscall para salir inmediatamente, 
+sin ejecutar el resto del código.
+
+mov ebx, 0: Este cambio se aplica a la misma sección que eax. 
+El registro ebx contiene el código de salida del programa. 
+
+int 0x80: Esta instrucción llama a la interrupción del sistema para ejecutar 
+la syscall indicada en eax. Al modificar eax a 1 antes de la interrupción, 
+el programa sale antes de llegar a la parte de leer o mostrar el carácter.
