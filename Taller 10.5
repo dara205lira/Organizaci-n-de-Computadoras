@@ -1,0 +1,68 @@
+section .data
+    msg db "El valor de count es: ", 0   ; Mensaje a imprimir
+    len equ $ - msg                       ; Longitud del mensaje
+
+section .bss
+    num resb 4                            ; Reservar 4 bytes para el número como cadena
+
+section .text
+    global _start
+    
+_start:
+    mov ecx, 10  ; count = 10
+    
+loop_start:
+    mov eax, 4              ; syscall para sys_write
+    mov ebx, 1              ; descriptor de archivo 1 (stdout)
+    mov edx, len            ; longitud del mensaje
+    lea esi, [msg]          ; dirección del mensaje
+    int 0x80                ; llamada al sistema
+ 
+    mov eax, ecx            ; copiar el valor de ecx en eax
+    call int_to_ascii       ; convertir eax a cadena en num
+
+    mov eax, 4              ; syscall para sys_write
+    mov ebx, 1              ; descriptor de archivo 1 (stdout)
+    lea esi, [num]          ; dirección de la cadena
+    mov edx, 4              ; longitud máxima de la cadena (número de 4 bytes)
+    int 0x80                ; llamada al sistema
+
+    mov eax, 4              ; syscall para sys_write
+    mov ebx, 1              ; descriptor de archivo 1 (stdout)
+    mov ecx, newline        ; dirección del salto de línea
+    mov edx, 1              ; longitud del salto de línea
+    int 0x80                ; llamada al sistema
+
+    cmp ecx, 1
+    jge loop_continue       ; Si ecx >= 1, continuar el bucle
+
+    jmp loop_end
+
+loop_continue:
+    dec ecx
+    
+    jmp loop_start
+
+loop_end:
+    mov eax, 1              ; syscall para terminar el programa
+    xor ebx, ebx            ; código de salida 0
+    int 0x80                ; llamada al sistema
+ 
+int_to_ascii:
+    ; Asumimos que eax tiene el número a convertir
+    mov ebx, 10            ; divisor (base 10)
+    mov ecx, num + 3       ; apuntar a la última posición de la cadena
+    mov byte [ecx], 0      ; colocar terminador nulo en la cadena
+
+convert_digit:
+    dec ecx                ; mover hacia atrás en la cadena
+    xor edx, edx           ; limpiar el registro edx
+    div byte [ebx]         ; dividir eax por 10, resultado en eax, residuo en edx
+    add dl, '0'            ; convertir el residuo a carácter ASCII
+    mov [ecx], dl          ; almacenar el carácter en la cadena
+    test eax, eax          ; comprobar si eax es cero
+    jnz convert_digit      ; si no es cero, continuar la conversión
+    ret
+
+section .data
+    newline db 0xA         ; salto de línea
