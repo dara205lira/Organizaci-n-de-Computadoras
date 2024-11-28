@@ -1,0 +1,46 @@
+section .data
+    product db 1            ; inicializa product en 1 
+    msg db "Resultado: ", 0  ; mensaje de salida
+    msg_len equ $ - msg      ; longitud del mensaje
+
+section .bss
+    i resb 1                ; reserva de espacio
+
+section .text
+    global _start
+
+_start:
+    mov byte [product], 1   ; inicializa product a 1
+    mov byte [i], 1         ; inicializar i a 1
+
+for_loop:
+    mov al, [product]       ; cargar el valor de product en al
+    mov bl, [i]             ; cargar el valor de i en bl
+    mul bl                  ; multiplicar al por bl y guarda el resultado en ax
+    mov [product], al       ; almacenar el resultado de la multiplicación en product
+
+    inc byte [i]            ; incrementar i
+
+    cmp byte [i], 6         ; compara i con 6
+    jl for_loop             ; si i < 6, repite el bucle (salta a for_loop)
+    
+fin_for:
+    mov eax, 4              ; syscall número 4 
+    mov ebx, 1              ; descriptor de archivo 1 
+    mov ecx, msg            ; dirección del mensaje
+    mov edx, msg_len        ; longitud del mensaje
+    int 0x80                ; llamada al sistema
+
+    mov al, [product]       ; carga el valor de product
+    add al, '0'             ; convierte el valor a carácter ASCII 
+    mov [msg], al           ; reemplaza el primer byte del mensaje con el valor de product como carácter
+
+    mov eax, 4             
+    mov ebx, 1              
+    mov ecx, msg            ; dirección del mensaje 
+    mov edx, 1              ; longitud 
+    int 0x80                ; llamada al sistema
+
+    mov eax, 1              ; código de salida 
+    xor ebx, ebx            ; código de retorno 0
+    int 0x80 
