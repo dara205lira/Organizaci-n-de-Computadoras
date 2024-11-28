@@ -1,0 +1,36 @@
+section .data
+    result db 0     ; se inicializa la variable result con valor 0
+    msg db 'Resultado: ', 0 ; se define Resultado con valor 0  
+  ; DARA LIRA
+section .bss
+    buffer resb 4 ; reserva de bytes 
+
+section .text
+    global _start 
+
+_start:
+    mov al, 5 ; mover 5 al registro al
+    add al, 11 ; sumar 11 al registro al 
+    mov [result], al    ; almacenar resultado en variable result
+    
+
+    movzx eax, byte [result] ; cargar valor de result en eax
+    
+    add eax, 48         ; Convertir el valor numérico en su correspondiente ASCII ('0' = 48)
+    mov [buffer], al    ; Almacenar el carácter ASCII en el buffer
+
+    mov eax, 4 ; cargar el número de sistema de llamada para sys_write
+    mov ebx, 1 ; descriptor de archivo
+    mov ecx, msg ; dirección de la cadena de caarateres a imprimir
+    mov edx, 11 ; longitud de la cadena de caracteres
+    int 0x80 ; llamar al sistema
+
+    mov eax, 4 ; llamada para escribir
+    mov ebx, 1 ; descriptor de archivo
+    mov ecx, buffer ; mover dirección de buffer a registro ecx
+    mov edx, 1 ; longitud de la cadena de caracteres
+    int 0x80 ; llamar al sistema
+
+    mov eax, 1 ; salida de programa
+    xor ebx, ebx ; establecer salida
+    int 0x80 ; llamar al sistema
